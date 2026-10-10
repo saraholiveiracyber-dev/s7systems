@@ -7,6 +7,7 @@
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
+
     /* =====================================================
        CONFIGURAÇÕES
     ===================================================== */
@@ -25,6 +26,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const MIN_DESCRIPTION_LENGTH = 500;
     const MAX_DESCRIPTION_LENGTH = 5000;
+
+    const API_URL = "/api/ebook-pedidos";
 
     const prefersReducedMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)"
@@ -81,6 +84,11 @@ document.addEventListener("DOMContentLoaded", () => {
     function showMessage(message = "", type = "") {
         if (!formMessage) return;
 
+        // Evita exibir [object Object] na página.
+        if (typeof message !== "string") {
+            message = getReadableError(message);
+        }
+
         formMessage.textContent = message;
         formMessage.className = "form-message";
 
@@ -94,6 +102,55 @@ document.addEventListener("DOMContentLoaded", () => {
                 type === "error" ? "alert" : "status"
             );
         }
+    }
+
+    function getReadableError(value) {
+        if (typeof value === "string" && value.trim()) {
+            return value;
+        }
+
+        if (value instanceof Error) {
+            if (
+                typeof value.message === "string" &&
+                value.message.trim() &&
+                value.message !== "[object Object]"
+            ) {
+                return value.message;
+            }
+        }
+
+        if (value && typeof value === "object") {
+            const possibleMessages = [
+                value.mensagem,
+                value.message,
+                value.error_description,
+                value.details,
+                value.error
+            ];
+
+            for (const item of possibleMessages) {
+                if (typeof item === "string" && item.trim()) {
+                    return item;
+                }
+
+                if (item && typeof item === "object") {
+                    const nested = getReadableError(item);
+
+                    if (
+                        nested &&
+                        nested !== "Ocorreu um erro inesperado."
+                    ) {
+                        return nested;
+                    }
+                }
+            }
+
+            if (typeof value.code === "string" && value.code.trim()) {
+                return `Código do erro: ${value.code}`;
+            }
+        }
+
+        return "Ocorreu um erro inesperado.";
     }
 
     function formatPrice(value) {
@@ -332,6 +389,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function validateEmail() {
         const value = getFieldValue(emailInput);
+
+        // O ponto antes do domínio precisa ser escapado com apenas uma barra.
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         let message = "";
@@ -478,9 +537,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateFormState() {
         if (!paymentButton || isSubmitting) return;
 
-        const descriptionLength =
-            getFieldValue(descricaoInput).length;
-
+        const descriptionLength = getFieldValue(descricaoInput).length;
         const phoneLength = getPhoneDigits().length;
 
         const valid =
@@ -537,10 +594,7 @@ document.addEventListener("DOMContentLoaded", () => {
         paymentButton.classList.toggle("is-loading", submitting);
         paymentButton.disabled = submitting;
 
-        paymentButton.setAttribute(
-            "aria-busy",
-            String(submitting)
-        );
+        paymentButton.setAttribute("aria-busy", String(submitting));
 
         if (buttonText) {
             buttonText.textContent = submitting
@@ -554,34 +608,43 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* =====================================================
-       ENVIO PARA A API
+       RESPOSTA DA API
     ===================================================== */
 
     async function submitOrder(orderData) {
-        const response = await fetch("/api/ebook-pedidos", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify(orderData)
-        });
+        let response;
+
+        try {
+            response = await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify(orderData)
+            });
+        } catch (error) {
+            console.error("Falha de conexão com a API:", error);
+
+            throw new Error(
+                "Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente."
+            );
+        }
 
         const responseText = await response.text();
         let result = null;
 
-        if (responseText) {
+        if (responseText.trim()) {
             try {
                 result = JSON.parse(responseText);
             } catch {
-                console.error("Resposta não JSON da API:", {
+                console.error("Resposta inválida da API:", {
                     status: response.status,
-                    body: responseText
+                    body: responseText.slice(0, 1000)
                 });
 
                 throw new Error(
-                    `O servidor retornou uma resposta inválida (HTTP ${response.status}). ` +
-                    "Confira o terminal do Node.js."
+                    `O servidor retornou uma resposta inválida (HTTP ${response.status}).`
                 );
             }
         }
@@ -592,21 +655,43 @@ document.addEventListener("DOMContentLoaded", () => {
                 result
             });
 
+            const apiMessage = getReadableError(result);
+
+            // Não exibe objetos brutos nem mensagens genéricas como [object Object].
+            const fallbackMessage =
+                response.status >= 500
+                    ? "O servidor apresentou um erro ao registrar seu pedido. Tente novamente mais tarde."
+                    : `Não foi possível registrar o pedido (HTTP ${response.status}). Confira os dados e tente novamente.`;
+
             throw new Error(
-                result?.mensagem ||
-                result?.message ||
-                result?.error ||
-                `Não foi possível registrar o pedido (HTTP ${response.status}).`
+                apiMessage !== "Ocorreu um erro inesperado."
+                    ? apiMessage
+                    : fallbackMessage
             );
         }
 
-        if (!result || result.ok !== true) {
-            console.error("A API não confirmou o registro:", result);
+        if (!result || typeof result !== "object" || Array.isArray(result)) {
+            console.error("Formato inesperado de resposta:", result);
 
             throw new Error(
-                result?.mensagem ||
-                result?.message ||
-                "O servidor não confirmou o registro do pedido."
+                "O servidor respondeu, mas não confirmou o registro do pedido."
+            );
+        }
+
+        // Aceita os dois formatos de confirmação mais comuns.
+        const confirmed =
+            result.ok === true ||
+            result.success === true;
+
+        if (!confirmed) {
+            console.error("A API não confirmou o registro:", result);
+
+            const apiMessage = getReadableError(result);
+
+            throw new Error(
+                apiMessage !== "Ocorreu um erro inesperado."
+                    ? apiMessage
+                    : "O servidor não confirmou o registro do pedido. Nenhum redirecionamento foi realizado."
             );
         }
 
@@ -631,6 +716,7 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
             form.querySelector('[aria-invalid="true"]')?.focus();
+
             updateFormState();
             return;
         }
@@ -645,11 +731,6 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        /*
-         * Compatível com a API do server.js:
-         * nome, email, whatsapp, tema, descricao,
-         * publico, objetivo, plano e termosAceitos.
-         */
         const orderData = {
             nome: getFieldValue(nomeInput),
             email: getFieldValue(emailInput).toLowerCase(),
@@ -672,7 +753,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             console.info("Pedido registrado pela API.", {
                 plano: selectedPlan,
-                status: result.status || "registrado"
+                status: typeof result.status === "string"
+                    ? result.status
+                    : "registrado"
             });
 
             showMessage(
@@ -681,8 +764,8 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
             /*
-             * A Kiwify confirma o pagamento separadamente.
-             * O registro do pedido não significa que ele foi pago.
+             * O pagamento é confirmado separadamente pela Kiwify.
+             * Só redireciona depois que a API confirmar o registro.
              */
             window.location.assign(checkoutUrl);
 
@@ -690,8 +773,9 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Erro no envio do pedido:", error);
 
             showMessage(
-                error.message ||
-                "Não foi possível conectar ao servidor. Tente novamente.",
+                getReadableError(error) === "Ocorreu um erro inesperado."
+                    ? "Não foi possível registrar seu pedido. Tente novamente."
+                    : getReadableError(error),
                 "error"
             );
 
@@ -709,7 +793,10 @@ document.addEventListener("DOMContentLoaded", () => {
     planCards.forEach((card) => {
         const planName = card.dataset.plan;
 
-        if (planName && !PLAN_PRICES[planName]) {
+        if (
+            planName &&
+            !Object.prototype.hasOwnProperty.call(PLAN_PRICES, planName)
+        ) {
             console.warn(`Plano sem preço configurado: ${planName}`);
         }
     });

@@ -1,0 +1,543 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Agendar Reunião | S7 Systems</title>
+
+    <meta
+        name="description"
+        content="Solicite uma reunião online com a S7 Systems para apresentar seu projeto, solicitar um orçamento ou conhecer nossas soluções digitais."
+    >
+
+    <meta name="theme-color" content="#050505">
+    <meta name="robots" content="index, follow">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="css/agendar-reuniao.css">
+
+    <script src="js/agendar-reuniao.js" defer></script>
+</head>
+
+<body>
+
+    <a class="skip-link" href="#conteudo">
+        Ir para o conteúdo principal
+    </a>
+
+    <div class="background-glow" aria-hidden="true"></div>
+
+    <!-- CABEÇALHO -->
+    <header class="header" id="header">
+
+        <div class="container nav-wrap">
+
+            <a
+                class="brand"
+                href="index.html"
+                aria-label="Voltar à página inicial da S7 Systems"
+            >
+                <img
+                    src="img/logo-s7.png"
+                    alt="S7 Systems"
+                    width="180"
+                    height="60"
+                    fetchpriority="high"
+                >
+            </a>
+
+            <a href="index.html" class="back-link">
+                <span aria-hidden="true">←</span>
+                <span>Voltar ao site</span>
+            </a>
+
+        </div>
+
+    </header>
+
+    <main id="conteudo">
+
+        <!-- HERO E FORMULÁRIO -->
+        <section class="meeting-hero" id="inicio">
+
+            <div
+                class="hero-decoration decoration-one"
+                aria-hidden="true"
+            >✦</div>
+
+            <div
+                class="hero-decoration decoration-two"
+                aria-hidden="true"
+            >✧</div>
+
+            <div class="meeting-container">
+
+                <!-- APRESENTAÇÃO -->
+                <div class="meeting-intro">
+
+                    <span class="eyebrow">
+                        <span class="eyebrow-line"></span>
+                        REUNIÃO ONLINE • ORÇAMENTOS E MENTORIA
+                    </span>
+
+                    <h1>
+                        Vamos conversar sobre o seu
+                        <span>próximo projeto?</span>
+                    </h1>
+
+                    <p class="hero-description">
+                        Toda grande ideia merece atenção, estratégia
+                        e um bom planejamento.
+
+                        Preencha o formulário para apresentar seu projeto,
+                        conhecer nossas soluções e conversar sobre os
+                        próximos passos.
+                    </p>
+
+                    <div class="meeting-benefits">
+
+                        <article class="benefit">
+
+                            <span
+                                class="benefit-icon"
+                                aria-hidden="true"
+                            >✦</span>
+
+                            <div>
+                                <h2>Conversa personalizada</h2>
+
+                                <p>
+                                    Um atendimento pensado para entender
+                                    sua necessidade e seus objetivos.
+                                </p>
+                            </div>
+
+                        </article>
+
+                        <article class="benefit">
+
+                            <span
+                                class="benefit-icon"
+                                aria-hidden="true"
+                            >↗</span>
+
+                            <div>
+                                <h2>Orientação estratégica</h2>
+
+                                <p>
+                                    Mais clareza para organizar ideias
+                                    e definir os próximos passos.
+                                </p>
+                            </div>
+
+                        </article>
+
+                        <article class="benefit">
+
+                            <span
+                                class="benefit-icon"
+                                aria-hidden="true"
+                            >⌘</span>
+
+                            <div>
+                                <h2>Soluções digitais</h2>
+
+                                <p>
+                                    Tecnologia, programação e criatividade
+                                    para tirar seu projeto do papel.
+                                </p>
+                            </div>
+
+                        </article>
+
+                    </div>
+
+                    <div class="meeting-note">
+
+                        <span
+                            class="note-dot"
+                            aria-hidden="true"
+                        ></span>
+
+                        <p>
+                            Atendimento online mediante confirmação
+                            de disponibilidade.
+                        </p>
+
+                    </div>
+
+                    <div class="meeting-services">
+
+                        <span>PROGRAMAÇÃO</span>
+                        <span class="service-separator">•</span>
+                        <span>MARKETING</span>
+                        <span class="service-separator">•</span>
+                        <span>PROJETOS DIGITAIS</span>
+
+                    </div>
+
+                </div>
+
+                <!-- CARTÃO DO FORMULÁRIO -->
+                <div class="meeting-form-card" id="formulario">
+
+                    <div class="form-top-decoration"></div>
+
+                    <div class="form-heading">
+
+                        <span class="form-step">
+                            <span class="step-number">01</span>
+                            VAMOS COMEÇAR
+                        </span>
+
+                        <h2>Solicite sua reunião</h2>
+
+                        <p>
+                            Conte-nos sobre você e sobre o projeto
+                            que deseja desenvolver.
+                        </p>
+
+                        <div class="required-note">
+                            <span aria-hidden="true">*</span>
+                            Campos obrigatórios
+                        </div>
+
+                    </div>
+
+                    <form
+                        id="meetingForm"
+                        action="/api/solicitacoes-reuniao"
+                        method="POST"
+                        accept-charset="UTF-8"
+                    >
+
+                        <!-- NOME -->
+                        <div class="field-group">
+
+                            <label for="nome">
+                                Nome completo
+                                <span aria-hidden="true">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                id="nome"
+                                name="nome"
+                                placeholder="Como podemos chamar você?"
+                                autocomplete="name"
+                                minlength="2"
+                                maxlength="100"
+                                required
+                            >
+
+                        </div>
+
+                        <!-- E-MAIL E TELEFONE -->
+                        <div class="form-row">
+
+                            <div class="field-group">
+
+                                <label for="email">
+                                    E-mail
+                                    <span aria-hidden="true">*</span>
+                                </label>
+
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    placeholder="voce@email.com"
+                                    autocomplete="email"
+                                    maxlength="254"
+                                    required
+                                >
+
+                            </div>
+
+                            <div class="field-group">
+
+                                <label for="telefone">
+                                    WhatsApp
+                                    <span aria-hidden="true">*</span>
+                                </label>
+
+                                <input
+                                    type="tel"
+                                    id="telefone"
+                                    name="telefone"
+                                    placeholder="(61) 99999-9999"
+                                    autocomplete="tel"
+                                    inputmode="tel"
+                                    maxlength="20"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+                        <!-- SERVIÇO -->
+                        <div class="field-group">
+
+                            <label for="servico">
+                                Assunto da reunião
+                                <span aria-hidden="true">*</span>
+                            </label>
+
+                            <select
+                                id="servico"
+                                name="servico"
+                                required
+                            >
+
+                                <option value="" selected disabled>
+                                    Selecione uma opção
+                                </option>
+
+                                <option value="Criação de site">
+                                    Criação de site
+                                </option>
+
+                                <option value="Programação e sistemas">
+                                    Programação e sistemas
+                                </option>
+
+                                <option value="Criação de e-book">
+                                    Criação de e-book
+                                </option>
+
+                                <option value="Marketing digital">
+                                    Marketing digital
+                                </option>
+
+                                <option value="Mentoria e orientação">
+                                    Mentoria e orientação
+                                </option>
+
+                                <option value="Orçamento de projeto">
+                                    Orçamento de projeto
+                                </option>
+
+                                <option value="Outro assunto">
+                                    Outro assunto
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <!-- DATA E HORÁRIO -->
+                        <div class="form-row">
+
+                            <div class="field-group">
+
+                                <label for="data">
+                                    Data de preferência
+                                </label>
+
+                                <input
+                                    type="date"
+                                    id="data"
+                                    name="data"
+                                >
+
+                                <span class="field-hint">
+                                    Escolha uma data, se desejar.
+                                </span>
+
+                            </div>
+
+                            <div class="field-group">
+
+                                <label for="horario">
+                                    Período preferido
+                                </label>
+
+                                <select
+                                    id="horario"
+                                    name="horario"
+                                >
+
+                                    <option value="A combinar">
+                                        A combinar
+                                    </option>
+
+                                    <option value="Manhã">
+                                        Manhã
+                                    </option>
+
+                                    <option value="Tarde">
+                                        Tarde
+                                    </option>
+
+                                    <option value="Noite">
+                                        Noite
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                        <!-- DESCRIÇÃO DO PROJETO -->
+                        <div class="field-group">
+
+                            <label for="descricao">
+                                Conte um pouco sobre seu projeto
+                                <span aria-hidden="true">*</span>
+                            </label>
+
+                            <textarea
+                                id="descricao"
+                                name="descricao"
+                                rows="5"
+                                minlength="10"
+                                maxlength="1500"
+                                placeholder="O que você deseja criar, melhorar ou desenvolver? Quais são seus objetivos?"
+                                required
+                            ></textarea>
+
+                            <div class="character-count">
+                                <span id="counter">0</span>
+                                <span>/ 1500 caracteres</span>
+                            </div>
+
+                        </div>
+
+                        <!-- CONSENTIMENTO -->
+                        <div class="privacy-check">
+
+                            <input
+                                type="checkbox"
+                                id="consentimento"
+                                name="consentimento"
+                                value="true"
+                                required
+                            >
+
+                            <label for="consentimento">
+                                Concordo em compartilhar meus dados
+                                para que a S7 Systems entre em contato
+                                sobre esta solicitação.
+                                <span aria-hidden="true">*</span>
+                            </label>
+
+                        </div>
+
+                        <!-- BOTÃO -->
+                        <button
+                            type="submit"
+                            class="submit-button"
+                            id="submitButton"
+                        >
+
+                            <span class="button-label">
+                                Solicitar reunião
+                            </span>
+
+                            <span
+                                class="button-arrow"
+                                aria-hidden="true"
+                            >↗</span>
+
+                        </button>
+
+                        <!-- AVISO -->
+                        <p class="form-disclaimer">
+                            Enviar a solicitação não confirma uma reunião.
+                            A data e o horário serão combinados após
+                            o contato da S7 Systems.
+                        </p>
+
+                        <!-- MENSAGENS -->
+                        <div
+                            id="formMessage"
+                            class="form-message"
+                            role="status"
+                            aria-live="polite"
+                            tabindex="-1"
+                        ></div>
+
+                    </form>
+
+                    <div class="form-security">
+
+                        <span aria-hidden="true">✧</span>
+
+                        <p>
+                            Seus dados devem ser utilizados para
+                            o atendimento desta solicitação.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- FRASE FINAL -->
+        <section class="bottom-note">
+
+            <span
+                class="bottom-star"
+                aria-hidden="true"
+            >✦</span>
+
+            <div class="bottom-note-content">
+
+                <p>
+                    Toda grande solução começa com uma boa conversa.
+                </p>
+
+                <strong>
+                    Vamos dar o primeiro passo?
+                </strong>
+
+            </div>
+
+            <span
+                class="bottom-star"
+                aria-hidden="true"
+            >✦</span>
+
+        </section>
+
+    </main>
+
+    <!-- RODAPÉ -->
+    <footer class="meeting-footer">
+
+        <a
+            class="footer-brand"
+            href="index.html"
+        >
+            S7 SYSTEMS
+        </a>
+
+        <p>
+            © <span id="currentYear"></span>
+            S7 Systems. Todos os direitos reservados.
+        </p>
+
+        <span class="footer-tagline">
+            TECNOLOGIA • ESTRATÉGIA • SOLUÇÕES DIGITAIS
+        </span>
+
+    </footer>
+
+</body>
+
+</html>

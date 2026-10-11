@@ -3,11 +3,10 @@
 
 /* =========================================================
    S7 SYSTEMS — CRIAÇÃO DE E-BOOK
-   Premium • Responsivo • Otimizado para celular
+   JavaScript completo • Responsivo • Navegação otimizada
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
-
     /* CONFIGURAÇÕES */
 
     const CHECKOUT_URLS = {
@@ -88,22 +87,18 @@ document.addEventListener("DOMContentLoaded", () => {
         descricao: $("#descricaoError")
     };
 
-    /* ESTILOS DE APOIO PARA CELULAR
-       Os estilos principais continuam no index.css. */
+    /* AJUSTES DE INTERAÇÃO E CELULAR */
 
-    const mobileStyle = document.createElement("style");
+    const responsiveStyle = document.createElement("style");
 
-    mobileStyle.textContent = `
+    responsiveStyle.textContent = `
         html {
-            scroll-behavior: ${reduceMotion || isMobile ? "auto" : "smooth"};
             -webkit-text-size-adjust: 100%;
+            scroll-behavior: ${reduceMotion || isMobile ? "auto" : "smooth"};
         }
 
-        button, a, input, select, textarea {
+        a, button {
             touch-action: manipulation;
-        }
-
-        button, a {
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -111,33 +106,44 @@ document.addEventListener("DOMContentLoaded", () => {
             max-width: 100%;
         }
 
+        .meeting-loading {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            pointer-events: none;
+            opacity: .88;
+        }
+
+        .meeting-loading-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            flex: 0 0 14px;
+            border: 2px solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: s7-meeting-spin .65s linear infinite;
+        }
+
+        @keyframes s7-meeting-spin {
+            to { transform: rotate(360deg); }
+        }
+
         @media (max-width: 768px) {
             .cursor-glow {
                 display: none !important;
             }
 
-            .money-particle {
-                animation: none !important;
-            }
-
-            .plan-card,
-            .plan-card *,
-            .reveal {
-                animation-duration: 0.2s !important;
-            }
-
+            #projeto,
+            #ebookOrderForm,
             .plan-card {
                 scroll-margin-top: 16px;
             }
 
-            #projeto,
-            #ebookOrderForm {
-                scroll-margin-top: 16px;
-            }
-
             #paymentButton {
-                min-height: 48px;
                 width: 100%;
+                min-height: 48px;
             }
 
             #ebookOrderForm input,
@@ -145,37 +151,27 @@ document.addEventListener("DOMContentLoaded", () => {
             #ebookOrderForm textarea {
                 font-size: 16px;
             }
-
-            .floating-button,
-            .whatsapp-float,
-            .floating-cta,
-            .btn-flutuante,
-            .botao-flutuante {
-                background: rgba(8, 8, 8, 0.30) !important;
-                backdrop-filter: blur(5px);
-                -webkit-backdrop-filter: blur(5px);
-                box-shadow: none !important;
-            }
-
-            .floating-button,
-            .floating-cta,
-            .btn-flutuante,
-            .botao-flutuante {
-                max-width: calc(100vw - 24px);
-            }
         }
 
         @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto !important;
+            }
+
+            .meeting-loading-spinner {
+                animation: none;
+            }
+
             *, *::before, *::after {
                 scroll-behavior: auto !important;
-                animation-duration: 0.01ms !important;
+                animation-duration: .01ms !important;
                 animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
+                transition-duration: .01ms !important;
             }
         }
     `;
 
-    document.head.appendChild(mobileStyle);
+    document.head.appendChild(responsiveStyle);
 
     /* UTILITÁRIOS */
 
@@ -327,7 +323,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    /* FOTO */
+    /* FOTO DE APRESENTAÇÃO */
 
     const aboutPhotoFrame = $(".about-photo-frame");
     const aboutPhoto = $(".about-photo");
@@ -340,7 +336,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.warn("Não foi possível carregar a imagem de perfil.");
     });
 
-    /* PARTÍCULAS */
+    /* PARTÍCULAS DECORATIVAS */
 
     function createMoneyParticles() {
         if (!particleContainer || reduceMotion || isMobile) return;
@@ -369,7 +365,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     createMoneyParticles();
 
-    /* EFEITO DE CURSOR SOMENTE NO COMPUTADOR */
+    /* EFEITO DO CURSOR — SOMENTE COMPUTADOR */
 
     if (cursorGlow && hasFinePointer && !reduceMotion) {
         document.body.classList.add("has-pointer");
@@ -391,6 +387,67 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }, { passive: true });
     }
+
+    /* AGENDAMENTO DE REUNIÃO — CLIQUE IMEDIATO */
+
+    $$('a[href]').forEach((link) => {
+        const href = link.getAttribute("href") || "";
+        const label = (
+            link.innerText ||
+            link.getAttribute("aria-label") ||
+            ""
+        ).trim().toLowerCase();
+
+        const isMeetingLink =
+            /reuni[aã]o|mentoria|agendamento/.test(label) ||
+            /agendar-reuniao\.html(?:[?#].*)?$/i.test(href) ||
+            /forms\.office\.com|forms\.microsoft\.com/i.test(href);
+
+        if (!isMeetingLink) return;
+
+        link.addEventListener("click", () => {
+            /*
+             * Não usamos preventDefault(), setTimeout() ou fetch aqui.
+             * O navegador inicia a navegação normalmente, sem esperar
+             * que uma operação JavaScript termine.
+             */
+            if (link.dataset.navigating === "true") return;
+
+            link.dataset.navigating = "true";
+
+            const originalContent = link.innerHTML;
+            const originalLabel = link.getAttribute("aria-label");
+
+            link.classList.add("meeting-loading");
+            link.setAttribute("aria-busy", "true");
+
+            const spinner = document.createElement("span");
+            spinner.className = "meeting-loading-spinner";
+            spinner.setAttribute("aria-hidden", "true");
+
+            const statusText = document.createElement("span");
+            statusText.textContent = "Abrindo agendamento...";
+
+            link.replaceChildren(spinner, statusText);
+
+            /*
+             * Se a navegação for cancelada ou o usuário permanecer
+             * na página, restauramos o botão.
+             */
+            window.setTimeout(() => {
+                if (!document.body.contains(link)) return;
+
+                link.innerHTML = originalContent;
+                link.classList.remove("meeting-loading");
+                link.removeAttribute("aria-busy");
+                delete link.dataset.navigating;
+
+                if (originalLabel) {
+                    link.setAttribute("aria-label", originalLabel);
+                }
+            }, 8000);
+        }, { passive: true });
+    });
 
     /* SELEÇÃO DE PLANO */
 
@@ -444,8 +501,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    /* BOTÕES DE CRIAR MEU E-BOOK
-       Aceita links e botões com os seletores abaixo. */
+    /* BOTÕES ALTERNATIVOS DE CRIAÇÃO DO E-BOOK */
 
     const createEbookSelectors = [
         "[data-create-ebook]",
@@ -491,7 +547,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let message = "";
 
         if (value.length < 2) {
-            message = "Informe seu nome completo.";
+            message = "Informe seu nome.";
         } else if (value.length > 150) {
             message = "O nome deve ter até 150 caracteres.";
         }
@@ -557,7 +613,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return !message;
     }
 
-    /* CONTADOR DE CARACTERES */
+    /* CONTADOR DA DESCRIÇÃO */
 
     function updateDescriptionCounter() {
         if (!descricaoInput) return;
@@ -586,7 +642,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    /* WHATSAPP */
+    /* FORMATAÇÃO DO WHATSAPP */
 
     function formatPhone(value) {
         const digits = value.replace(/\D/g, "").slice(0, 11);
@@ -607,7 +663,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     whatsappInput?.addEventListener("input", () => {
         const oldValue = whatsappInput.value;
-        const oldPosition = whatsappInput.selectionStart ?? oldValue.length;
+        const oldPosition =
+            whatsappInput.selectionStart ?? oldValue.length;
 
         const digitsBeforeCursor = oldValue
             .slice(0, oldPosition)
@@ -620,8 +677,10 @@ document.addEventListener("DOMContentLoaded", () => {
         let newPosition = 0;
         let digitsSeen = 0;
 
-        while (newPosition < formatted.length &&
-               digitsSeen < digitsBeforeCursor) {
+        while (
+            newPosition < formatted.length &&
+            digitsSeen < digitsBeforeCursor
+        ) {
             if (/\d/.test(formatted[newPosition])) digitsSeen++;
             newPosition++;
         }
@@ -639,15 +698,18 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ESTADO DO FORMULÁRIO */
 
     function isFormValid() {
-        const fieldsValid =
-            validateName() &&
-            validateEmail() &&
-            validatePhone() &&
-            validateTheme() &&
-            validateDescription();
+        const nameValid = validateName();
+        const emailValid = validateEmail();
+        const phoneValid = validatePhone();
+        const themeValid = validateTheme();
+        const descriptionValid = validateDescription();
 
         return (
-            fieldsValid &&
+            nameValid &&
+            emailValid &&
+            phoneValid &&
+            themeValid &&
+            descriptionValid &&
             Boolean(selectedPlan) &&
             termsInput?.checked === true
         );
@@ -711,7 +773,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         paymentButton.classList.toggle("is-loading", submitting);
         paymentButton.disabled = submitting;
-
         paymentButton.setAttribute("aria-busy", String(submitting));
 
         if (buttonText) {
@@ -725,7 +786,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    /* COMUNICAÇÃO COM A API */
+    /* REGISTRO DO PEDIDO NA API */
 
     async function submitOrder(orderData) {
         const controller = new AbortController();
@@ -796,8 +857,11 @@ document.addEventListener("DOMContentLoaded", () => {
             );
         }
 
-        if (!result || typeof result !== "object" ||
-            Array.isArray(result)) {
+        if (
+            !result ||
+            typeof result !== "object" ||
+            Array.isArray(result)
+        ) {
             throw new Error(
                 "O servidor não confirmou o registro do pedido."
             );
@@ -822,7 +886,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return result;
     }
 
-    /* ENVIO E PAGAMENTO */
+    /* ENVIO DO FORMULÁRIO E REDIRECIONAMENTO */
 
     form?.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -837,10 +901,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 "error"
             );
 
-            const firstInvalid = $(
-                '[aria-invalid="true"]',
-                form
-            );
+            const firstInvalid = $('[aria-invalid="true"]', form);
 
             if (firstInvalid) {
                 firstInvalid.focus({ preventScroll: true });
@@ -895,36 +956,12 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
             window.location.assign(checkoutUrl);
-
         } catch (error) {
             console.error("Erro ao registrar pedido:", error);
 
             showMessage(getReadableError(error), "error");
             setSubmittingState(false);
         }
-    });
-
-    /* REUNIÃO ONLINE
-       Não intercepta nem atrasa o clique dos links externos.
-       Garante abertura segura para links configurados em nova aba. */
-
-    $$("a[href]").forEach((link) => {
-        const href = link.getAttribute("href") || "";
-        const label = (link.innerText || link.getAttribute("aria-label") || "")
-            .trim()
-            .toLowerCase();
-
-        const isMeeting =
-            /reuni[aã]o|mentoria|agendamento/.test(label) ||
-            /forms\.office\.com|forms\.microsoft\.com/.test(href);
-
-        if (!isMeeting || !/^https?:\/\//i.test(href)) return;
-
-        if (link.target === "_blank") {
-            link.rel = "noopener noreferrer";
-        }
-
-        link.style.touchAction = "manipulation";
     });
 
     /* INICIALIZAÇÃO */

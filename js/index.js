@@ -3,14 +3,12 @@
 
 /* =========================================================
    S7 SYSTEMS — CRIAÇÃO DE E-BOOK
-   Animações, planos, formulário e integração com a API
+   Premium • Responsivo • Otimizado para celular
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* =====================================================
-       CONFIGURAÇÕES
-    ===================================================== */
+    /* CONFIGURAÇÕES */
 
     const CHECKOUT_URLS = {
         Essencial: "https://pay.kiwify.com.br/ydusq7T",
@@ -26,70 +24,224 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const MIN_DESCRIPTION_LENGTH = 500;
     const MAX_DESCRIPTION_LENGTH = 5000;
-
     const API_URL = "/api/ebook-pedidos";
+    const API_TIMEOUT = 20000;
 
-    const prefersReducedMotion = window.matchMedia(
+    const reduceMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    const isMobile = window.matchMedia(
+        "(max-width: 768px)"
+    ).matches;
+
+    const hasFinePointer = window.matchMedia(
+        "(pointer: fine)"
     ).matches;
 
     let selectedPlan = "";
     let isSubmitting = false;
 
-    /* =====================================================
-       ELEMENTOS
-    ===================================================== */
+    /* ELEMENTOS */
 
-    const header = document.getElementById("header");
-    const particleContainer = document.getElementById("money-particles");
-    const cursorGlow = document.querySelector(".cursor-glow");
+    const $ = (selector, parent = document) =>
+        parent.querySelector(selector);
 
-    const form = document.getElementById("ebookOrderForm");
-    const planInput = document.getElementById("plano");
-    const valueInput = document.getElementById("valor");
+    const $$ = (selector, parent = document) =>
+        [...parent.querySelectorAll(selector)];
 
-    const selectedPlanName = document.getElementById("selectedPlanName");
-    const selectedPlanPrice = document.getElementById("selectedPlanPrice");
+    const header = $("#header");
+    const particleContainer = $("#money-particles");
+    const cursorGlow = $(".cursor-glow");
 
-    const nomeInput = document.getElementById("nome");
-    const emailInput = document.getElementById("email");
-    const whatsappInput = document.getElementById("whatsapp");
-    const temaInput = document.getElementById("tema");
-    const descricaoInput = document.getElementById("descricao");
-    const publicoInput = document.getElementById("publico");
-    const objetivoInput = document.getElementById("objetivo");
-    const termsInput = document.getElementById("terms");
+    const form = $("#ebookOrderForm");
+    const planInput = $("#plano");
+    const valueInput = $("#valor");
 
-    const counter = document.getElementById("counter");
-    const characterStatus = document.getElementById("characterStatus");
-    const paymentButton = document.getElementById("paymentButton");
-    const buttonText = paymentButton?.querySelector(".button-text");
-    const formMessage = document.getElementById("formMessage");
+    const selectedPlanName = $("#selectedPlanName");
+    const selectedPlanPrice = $("#selectedPlanPrice");
 
-    const planCards = document.querySelectorAll(".plan-card");
-    const planButtons = document.querySelectorAll("[data-select-plan]");
+    const nomeInput = $("#nome");
+    const emailInput = $("#email");
+    const whatsappInput = $("#whatsapp");
+    const temaInput = $("#tema");
+    const descricaoInput = $("#descricao");
+    const publicoInput = $("#publico");
+    const objetivoInput = $("#objetivo");
+    const termsInput = $("#terms");
+
+    const counter = $("#counter");
+    const characterStatus = $("#characterStatus");
+
+    const paymentButton = $("#paymentButton");
+    const buttonText = $(".button-text", paymentButton || document);
+    const formMessage = $("#formMessage");
+
+    const planCards = $$(".plan-card");
+    const planButtons = $$("[data-select-plan]");
 
     const errorElements = {
-        nome: document.getElementById("nomeError"),
-        email: document.getElementById("emailError"),
-        whatsapp: document.getElementById("whatsappError"),
-        tema: document.getElementById("temaError"),
-        descricao: document.getElementById("descricaoError")
+        nome: $("#nomeError"),
+        email: $("#emailError"),
+        whatsapp: $("#whatsappError"),
+        tema: $("#temaError"),
+        descricao: $("#descricaoError")
     };
 
-    /* =====================================================
-       UTILITÁRIOS
-    ===================================================== */
+    /* ESTILOS DE APOIO PARA CELULAR
+       Os estilos principais continuam no index.css. */
+
+    const mobileStyle = document.createElement("style");
+
+    mobileStyle.textContent = `
+        html {
+            scroll-behavior: ${reduceMotion || isMobile ? "auto" : "smooth"};
+            -webkit-text-size-adjust: 100%;
+        }
+
+        button, a, input, select, textarea {
+            touch-action: manipulation;
+        }
+
+        button, a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        input, select, textarea {
+            max-width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .cursor-glow {
+                display: none !important;
+            }
+
+            .money-particle {
+                animation: none !important;
+            }
+
+            .plan-card,
+            .plan-card *,
+            .reveal {
+                animation-duration: 0.2s !important;
+            }
+
+            .plan-card {
+                scroll-margin-top: 16px;
+            }
+
+            #projeto,
+            #ebookOrderForm {
+                scroll-margin-top: 16px;
+            }
+
+            #paymentButton {
+                min-height: 48px;
+                width: 100%;
+            }
+
+            #ebookOrderForm input,
+            #ebookOrderForm select,
+            #ebookOrderForm textarea {
+                font-size: 16px;
+            }
+
+            .floating-button,
+            .whatsapp-float,
+            .floating-cta,
+            .btn-flutuante,
+            .botao-flutuante {
+                background: rgba(8, 8, 8, 0.30) !important;
+                backdrop-filter: blur(5px);
+                -webkit-backdrop-filter: blur(5px);
+                box-shadow: none !important;
+            }
+
+            .floating-button,
+            .floating-cta,
+            .btn-flutuante,
+            .botao-flutuante {
+                max-width: calc(100vw - 24px);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    `;
+
+    document.head.appendChild(mobileStyle);
+
+    /* UTILITÁRIOS */
+
+    function getFieldValue(input) {
+        return input?.value?.trim() || "";
+    }
+
+    function getPhoneDigits() {
+        return (whatsappInput?.value || "").replace(/\D/g, "");
+    }
+
+    function formatPrice(value) {
+        return Number(value).toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function getReadableError(value) {
+        if (typeof value === "string" && value.trim()) {
+            return value;
+        }
+
+        if (value instanceof Error && value.message) {
+            return value.message;
+        }
+
+        if (value && typeof value === "object") {
+            for (const key of [
+                "mensagem",
+                "message",
+                "error_description",
+                "details",
+                "error"
+            ]) {
+                const item = value[key];
+
+                if (typeof item === "string" && item.trim()) {
+                    return item;
+                }
+
+                if (item && typeof item === "object") {
+                    const nested = getReadableError(item);
+
+                    if (nested !== "Ocorreu um erro inesperado.") {
+                        return nested;
+                    }
+                }
+            }
+
+            if (typeof value.code === "string") {
+                return `Código do erro: ${value.code}`;
+            }
+        }
+
+        return "Ocorreu um erro inesperado.";
+    }
 
     function showMessage(message = "", type = "") {
         if (!formMessage) return;
 
-        // Evita exibir [object Object] na página.
-        if (typeof message !== "string") {
-            message = getReadableError(message);
-        }
+        formMessage.textContent =
+            typeof message === "string"
+                ? message
+                : getReadableError(message);
 
-        formMessage.textContent = message;
         formMessage.className = "form-message";
 
         if (type) {
@@ -101,91 +253,41 @@ document.addEventListener("DOMContentLoaded", () => {
                 "role",
                 type === "error" ? "alert" : "status"
             );
+        } else {
+            formMessage.removeAttribute("role");
         }
     }
 
-    function getReadableError(value) {
-        if (typeof value === "string" && value.trim()) {
-            return value;
-        }
+    function scrollToElement(element) {
+        if (!element) return;
 
-        if (value instanceof Error) {
-            if (
-                typeof value.message === "string" &&
-                value.message.trim() &&
-                value.message !== "[object Object]"
-            ) {
-                return value.message;
-            }
-        }
-
-        if (value && typeof value === "object") {
-            const possibleMessages = [
-                value.mensagem,
-                value.message,
-                value.error_description,
-                value.details,
-                value.error
-            ];
-
-            for (const item of possibleMessages) {
-                if (typeof item === "string" && item.trim()) {
-                    return item;
-                }
-
-                if (item && typeof item === "object") {
-                    const nested = getReadableError(item);
-
-                    if (
-                        nested &&
-                        nested !== "Ocorreu um erro inesperado."
-                    ) {
-                        return nested;
-                    }
-                }
-            }
-
-            if (typeof value.code === "string" && value.code.trim()) {
-                return `Código do erro: ${value.code}`;
-            }
-        }
-
-        return "Ocorreu um erro inesperado.";
-    }
-
-    function formatPrice(value) {
-        return Number(value).toLocaleString("pt-BR", {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 2
+        element.scrollIntoView({
+            behavior: reduceMotion || isMobile ? "auto" : "smooth",
+            block: "start"
         });
     }
 
-    function getPhoneDigits() {
-        return (whatsappInput?.value || "").replace(/\D/g, "");
-    }
+    /* ANO DO RODAPÉ */
 
-    function getFieldValue(input) {
-        return input?.value?.trim() || "";
-    }
-
-    /* =====================================================
-       ANO DO RODAPÉ
-    ===================================================== */
-
-    const currentYear = document.getElementById("current-year");
+    const currentYear = $("#current-year");
 
     if (currentYear) {
         currentYear.textContent = new Date().getFullYear();
     }
 
-    /* =====================================================
-       CABEÇALHO AO ROLAR
-    ===================================================== */
+    /* CABEÇALHO */
+
+    let lastHeaderState = null;
 
     function updateHeader() {
         if (!header) return;
 
-        header.classList.toggle("scrolled", window.scrollY > 20);
+        const scrolled = window.scrollY > 20;
+
+        if (scrolled !== lastHeaderState) {
+            header.classList.toggle("scrolled", scrolled);
+            lastHeaderState = scrolled;
+        }
     }
 
     updateHeader();
@@ -194,13 +296,11 @@ document.addEventListener("DOMContentLoaded", () => {
         passive: true
     });
 
-    /* =====================================================
-       ANIMAÇÕES DE ENTRADA
-    ===================================================== */
+    /* ANIMAÇÕES DE ENTRADA */
 
-    const revealElements = document.querySelectorAll(".reveal");
+    const revealElements = $$(".reveal");
 
-    if ("IntersectionObserver" in window && !prefersReducedMotion) {
+    if ("IntersectionObserver" in window && !reduceMotion) {
         const revealObserver = new IntersectionObserver(
             (entries, observer) => {
                 entries.forEach((entry) => {
@@ -211,8 +311,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             },
             {
-                threshold: 0.12,
-                rootMargin: "0px 0px -35px 0px"
+                threshold: isMobile ? 0.04 : 0.12,
+                rootMargin: isMobile
+                    ? "0px 0px 20px 0px"
+                    : "0px 0px -35px 0px"
             }
         );
 
@@ -225,36 +327,26 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    /* =====================================================
-       FOTO DE PERFIL
-    ===================================================== */
+    /* FOTO */
 
-    const aboutPhotoFrame = document.querySelector(".about-photo-frame");
-    const aboutPhoto = document.querySelector(".about-photo");
+    const aboutPhotoFrame = $(".about-photo-frame");
+    const aboutPhoto = $(".about-photo");
 
-    if (aboutPhotoFrame && !prefersReducedMotion) {
+    if (aboutPhotoFrame && !isMobile && !reduceMotion) {
         aboutPhotoFrame.classList.add("photo-float-ready");
     }
 
-    if (aboutPhoto) {
-        aboutPhoto.addEventListener("error", () => {
-            console.warn(
-                "Não foi possível carregar img/Sarah-Oliveira.png."
-            );
-        });
-    }
+    aboutPhoto?.addEventListener("error", () => {
+        console.warn("Não foi possível carregar a imagem de perfil.");
+    });
 
-    /* =====================================================
-       PARTÍCULAS DOURADAS
-    ===================================================== */
+    /* PARTÍCULAS */
 
     function createMoneyParticles() {
-        if (!particleContainer || prefersReducedMotion) return;
+        if (!particleContainer || reduceMotion || isMobile) return;
         if (particleContainer.childElementCount > 0) return;
 
-        const amount = window.innerWidth < 600 ? 8 : 16;
-
-        for (let i = 0; i < amount; i++) {
+        for (let i = 0; i < 12; i++) {
             const particle = document.createElement("span");
 
             particle.className = "money-particle";
@@ -267,9 +359,9 @@ document.addEventListener("DOMContentLoaded", () => {
             particle.style.animationDelay =
                 `${-Math.random() * 30}s`;
             particle.style.fontSize =
-                `${13 + Math.random() * 17}px`;
+                `${13 + Math.random() * 12}px`;
             particle.style.opacity =
-                `${0.18 + Math.random() * 0.35}`;
+                `${0.18 + Math.random() * 0.25}`;
 
             particleContainer.appendChild(particle);
         }
@@ -277,33 +369,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
     createMoneyParticles();
 
-    /* =====================================================
-       LUZ QUE ACOMPANHA O MOUSE
-    ===================================================== */
+    /* EFEITO DE CURSOR SOMENTE NO COMPUTADOR */
 
-    if (
-        cursorGlow &&
-        window.matchMedia("(pointer: fine)").matches &&
-        !prefersReducedMotion
-    ) {
+    if (cursorGlow && hasFinePointer && !reduceMotion) {
         document.body.classList.add("has-pointer");
 
-        window.addEventListener(
-            "pointermove",
-            (event) => {
-                cursorGlow.style.left = `${event.clientX}px`;
-                cursorGlow.style.top = `${event.clientY}px`;
-            },
-            { passive: true }
-        );
+        let pointerFrame = 0;
+        let pointerX = 0;
+        let pointerY = 0;
+
+        window.addEventListener("pointermove", (event) => {
+            pointerX = event.clientX;
+            pointerY = event.clientY;
+
+            if (pointerFrame) return;
+
+            pointerFrame = requestAnimationFrame(() => {
+                cursorGlow.style.left = `${pointerX}px`;
+                cursorGlow.style.top = `${pointerY}px`;
+                pointerFrame = 0;
+            });
+        }, { passive: true });
     }
 
-    /* =====================================================
-       SELEÇÃO DE PLANO
-    ===================================================== */
+    /* SELEÇÃO DE PLANO */
 
-    function selectPlan(planName) {
-        if (!Object.prototype.hasOwnProperty.call(PLAN_PRICES, planName)) {
+    function selectPlan(planName, shouldScroll = false) {
+        if (!Object.hasOwn(PLAN_PRICES, planName)) {
             showMessage("Selecione um plano válido.", "error");
             return;
         }
@@ -312,13 +404,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const price = PLAN_PRICES[planName];
 
-        if (planInput) {
-            planInput.value = planName;
-        }
-
-        if (valueInput) {
-            valueInput.value = String(price);
-        }
+        if (planInput) planInput.value = planName;
+        if (valueInput) valueInput.value = String(price);
 
         if (selectedPlanName) {
             selectedPlanName.textContent = `E-book ${planName}`;
@@ -329,36 +416,62 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         planCards.forEach((card) => {
-            const isSelected = card.dataset.plan === planName;
+            const selected = card.dataset.plan === planName;
 
-            card.classList.toggle("is-selected", isSelected);
+            card.classList.toggle("is-selected", selected);
 
-            const button = card.querySelector("[data-select-plan]");
+            const button = $("[data-select-plan]", card);
 
             if (button) {
-                button.classList.toggle("is-selected", isSelected);
-                button.setAttribute("aria-pressed", String(isSelected));
+                button.classList.toggle("is-selected", selected);
+                button.setAttribute("aria-pressed", String(selected));
             }
         });
 
         showMessage();
         updateFormState();
+
+        if (shouldScroll) {
+            scrollToElement($("#projeto"));
+        }
     }
 
     planButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-            selectPlan(button.dataset.selectPlan);
+        button.addEventListener("click", (event) => {
+            event.preventDefault();
 
-            document.getElementById("projeto")?.scrollIntoView({
-                behavior: prefersReducedMotion ? "auto" : "smooth",
-                block: "start"
-            });
+            selectPlan(button.dataset.selectPlan, true);
         });
     });
 
-    /* =====================================================
-       VALIDAÇÃO DOS CAMPOS
-    ===================================================== */
+    /* BOTÕES DE CRIAR MEU E-BOOK
+       Aceita links e botões com os seletores abaixo. */
+
+    const createEbookSelectors = [
+        "[data-create-ebook]",
+        ".btn-criar-ebook",
+        "#createEbookButton"
+    ].join(",");
+
+    $$(createEbookSelectors).forEach((button) => {
+        button.addEventListener("click", (event) => {
+            const target = $("#projeto");
+
+            if (!target) return;
+
+            event.preventDefault();
+            scrollToElement(target);
+
+            if (!selectedPlan && planCards.length) {
+                showMessage(
+                    "Escolha um dos planos para iniciar seu projeto.",
+                    "info"
+                );
+            }
+        });
+    });
+
+    /* VALIDAÇÃO DOS CAMPOS */
 
     function setFieldError(input, errorElement, message) {
         if (errorElement) {
@@ -378,7 +491,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let message = "";
 
         if (value.length < 2) {
-            message = "Informe seu nome.";
+            message = "Informe seu nome completo.";
         } else if (value.length > 150) {
             message = "O nome deve ter até 150 caracteres.";
         }
@@ -389,15 +502,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function validateEmail() {
         const value = getFieldValue(emailInput);
+        const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        // O ponto antes do domínio precisa ser escapado com apenas uma barra.
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        let message = "";
-
-        if (!emailPattern.test(value)) {
-            message = "Informe um endereço de e-mail válido.";
-        }
+        const message = pattern.test(value)
+            ? ""
+            : "Informe um e-mail válido.";
 
         setFieldError(emailInput, errorElements.email, message);
         return !message;
@@ -405,11 +514,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function validatePhone() {
         const digits = getPhoneDigits();
-        let message = "";
 
-        if (digits.length < 10 || digits.length > 11) {
-            message = "Informe um WhatsApp válido com DDD.";
-        }
+        const message =
+            digits.length < 10 || digits.length > 11
+                ? "Informe um WhatsApp válido com DDD."
+                : "";
 
         setFieldError(whatsappInput, errorElements.whatsapp, message);
         return !message;
@@ -434,11 +543,9 @@ document.addEventListener("DOMContentLoaded", () => {
         let message = "";
 
         if (value.length < MIN_DESCRIPTION_LENGTH) {
-            message =
-                `Escreva pelo menos ${MIN_DESCRIPTION_LENGTH} caracteres.`;
+            message = `Escreva pelo menos ${MIN_DESCRIPTION_LENGTH} caracteres.`;
         } else if (value.length > MAX_DESCRIPTION_LENGTH) {
-            message =
-                `A descrição deve ter no máximo ${MAX_DESCRIPTION_LENGTH} caracteres.`;
+            message = `A descrição deve ter no máximo ${MAX_DESCRIPTION_LENGTH} caracteres.`;
         }
 
         setFieldError(
@@ -450,19 +557,18 @@ document.addEventListener("DOMContentLoaded", () => {
         return !message;
     }
 
-    /* =====================================================
-       CONTADOR DE CARACTERES
-    ===================================================== */
+    /* CONTADOR DE CARACTERES */
 
     function updateDescriptionCounter() {
         if (!descricaoInput) return;
 
         const length = descricaoInput.value.length;
         const complete = length >= MIN_DESCRIPTION_LENGTH;
+        const remaining = Math.max(0, MIN_DESCRIPTION_LENGTH - length);
 
         if (counter) {
             counter.textContent =
-                `${length} / ${MAX_DESCRIPTION_LENGTH}`;
+                `${length.toLocaleString("pt-BR")} / ${MAX_DESCRIPTION_LENGTH.toLocaleString("pt-BR")}`;
 
             counter.classList.toggle("is-complete", complete);
         }
@@ -470,25 +576,23 @@ document.addEventListener("DOMContentLoaded", () => {
         if (characterStatus) {
             characterStatus.classList.toggle("is-complete", complete);
 
-            const statusText = characterStatus.querySelector("span");
+            const statusText = $("span", characterStatus);
 
             if (statusText) {
                 statusText.textContent = complete
-                    ? "Descrição com o mínimo atingido."
-                    : `Faltam ${MIN_DESCRIPTION_LENGTH - length} caracteres para o mínimo.`;
+                    ? "Mínimo de caracteres atingido."
+                    : `Faltam ${remaining} caracteres.`;
             }
         }
     }
 
-    /* =====================================================
-       FORMATAÇÃO DO WHATSAPP
-    ===================================================== */
+    /* WHATSAPP */
 
     function formatPhone(value) {
         const digits = value.replace(/\D/g, "").slice(0, 11);
 
         if (!digits) return "";
-        if (digits.length < 3) return `(${digits}`;
+        if (digits.length <= 2) return `(${digits}`;
 
         if (digits.length <= 6) {
             return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
@@ -502,35 +606,50 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     whatsappInput?.addEventListener("input", () => {
-        const cursorAtEnd =
-            whatsappInput.selectionStart === whatsappInput.value.length;
+        const oldValue = whatsappInput.value;
+        const oldPosition = whatsappInput.selectionStart ?? oldValue.length;
 
-        whatsappInput.value = formatPhone(whatsappInput.value);
+        const digitsBeforeCursor = oldValue
+            .slice(0, oldPosition)
+            .replace(/\D/g, "").length;
 
-        if (cursorAtEnd) {
-            whatsappInput.setSelectionRange(
-                whatsappInput.value.length,
-                whatsappInput.value.length
-            );
+        const formatted = formatPhone(oldValue);
+
+        whatsappInput.value = formatted;
+
+        let newPosition = 0;
+        let digitsSeen = 0;
+
+        while (newPosition < formatted.length &&
+               digitsSeen < digitsBeforeCursor) {
+            if (/\d/.test(formatted[newPosition])) digitsSeen++;
+            newPosition++;
+        }
+
+        try {
+            whatsappInput.setSelectionRange(newPosition, newPosition);
+        } catch {
+            // Alguns navegadores não permitem ajustar a seleção.
         }
 
         validatePhone();
         updateFormState();
     });
 
-    /* =====================================================
-       ESTADO E VALIDAÇÃO GERAL
-    ===================================================== */
+    /* ESTADO DO FORMULÁRIO */
 
     function isFormValid() {
-        return (
+        const fieldsValid =
             validateName() &&
             validateEmail() &&
             validatePhone() &&
             validateTheme() &&
-            validateDescription() &&
-            Boolean(termsInput?.checked) &&
-            Boolean(selectedPlan)
+            validateDescription();
+
+        return (
+            fieldsValid &&
+            Boolean(selectedPlan) &&
+            termsInput?.checked === true
         );
     }
 
@@ -543,15 +662,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const valid =
             Boolean(selectedPlan) &&
             getFieldValue(nomeInput).length >= 2 &&
-            getFieldValue(emailInput).length > 0 &&
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(getFieldValue(emailInput)) &&
             phoneLength >= 10 &&
             phoneLength <= 11 &&
             getFieldValue(temaInput).length >= 3 &&
             descriptionLength >= MIN_DESCRIPTION_LENGTH &&
             descriptionLength <= MAX_DESCRIPTION_LENGTH &&
-            Boolean(termsInput?.checked);
+            termsInput?.checked === true;
 
         paymentButton.disabled = !valid;
+        paymentButton.setAttribute("aria-disabled", String(!valid));
     }
 
     nomeInput?.addEventListener("input", () => {
@@ -582,9 +702,7 @@ document.addEventListener("DOMContentLoaded", () => {
         input?.addEventListener("change", updateFormState);
     });
 
-    /* =====================================================
-       ESTADO DO BOTÃO
-    ===================================================== */
+    /* ESTADO DE ENVIO */
 
     function setSubmittingState(submitting) {
         isSubmitting = submitting;
@@ -607,11 +725,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    /* =====================================================
-       RESPOSTA DA API
-    ===================================================== */
+    /* COMUNICAÇÃO COM A API */
 
     async function submitOrder(orderData) {
+        const controller = new AbortController();
+
+        const timeout = window.setTimeout(
+            () => controller.abort(),
+            API_TIMEOUT
+        );
+
         let response;
 
         try {
@@ -621,14 +744,21 @@ document.addEventListener("DOMContentLoaded", () => {
                     "Content-Type": "application/json",
                     "Accept": "application/json"
                 },
-                body: JSON.stringify(orderData)
+                body: JSON.stringify(orderData),
+                signal: controller.signal
             });
         } catch (error) {
-            console.error("Falha de conexão com a API:", error);
+            if (error.name === "AbortError") {
+                throw new Error(
+                    "O servidor demorou para responder. Verifique se o pedido foi registrado antes de tentar novamente."
+                );
+            }
 
             throw new Error(
-                "Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente."
+                "Não foi possível conectar ao servidor. Verifique sua internet e tente novamente."
             );
+        } finally {
+            window.clearTimeout(timeout);
         }
 
         const responseText = await response.text();
@@ -638,69 +768,61 @@ document.addEventListener("DOMContentLoaded", () => {
             try {
                 result = JSON.parse(responseText);
             } catch {
-                console.error("Resposta inválida da API:", {
-                    status: response.status,
-                    body: responseText.slice(0, 1000)
-                });
+                console.error(
+                    "Resposta inválida da API:",
+                    response.status,
+                    responseText.slice(0, 500)
+                );
 
                 throw new Error(
-                    `O servidor retornou uma resposta inválida (HTTP ${response.status}).`
+                    `Resposta inválida do servidor (HTTP ${response.status}).`
                 );
             }
         }
 
         if (!response.ok) {
-            console.error("Erro retornado pela API:", {
-                status: response.status,
-                result
-            });
+            console.error("Erro da API:", response.status, result);
 
-            const apiMessage = getReadableError(result);
+            const message = getReadableError(result);
 
-            // Não exibe objetos brutos nem mensagens genéricas como [object Object].
-            const fallbackMessage =
+            if (message !== "Ocorreu um erro inesperado.") {
+                throw new Error(message);
+            }
+
+            throw new Error(
                 response.status >= 500
-                    ? "O servidor apresentou um erro ao registrar seu pedido. Tente novamente mais tarde."
-                    : `Não foi possível registrar o pedido (HTTP ${response.status}). Confira os dados e tente novamente.`;
-
-            throw new Error(
-                apiMessage !== "Ocorreu um erro inesperado."
-                    ? apiMessage
-                    : fallbackMessage
+                    ? "O servidor apresentou um erro ao registrar o pedido. Tente novamente mais tarde."
+                    : `Não foi possível registrar o pedido (HTTP ${response.status}).`
             );
         }
 
-        if (!result || typeof result !== "object" || Array.isArray(result)) {
-            console.error("Formato inesperado de resposta:", result);
-
+        if (!result || typeof result !== "object" ||
+            Array.isArray(result)) {
             throw new Error(
-                "O servidor respondeu, mas não confirmou o registro do pedido."
+                "O servidor não confirmou o registro do pedido."
             );
         }
 
-        // Aceita os dois formatos de confirmação mais comuns.
         const confirmed =
             result.ok === true ||
             result.success === true;
 
         if (!confirmed) {
-            console.error("A API não confirmou o registro:", result);
+            console.error("Registro não confirmado:", result);
 
-            const apiMessage = getReadableError(result);
+            const message = getReadableError(result);
 
             throw new Error(
-                apiMessage !== "Ocorreu um erro inesperado."
-                    ? apiMessage
-                    : "O servidor não confirmou o registro do pedido. Nenhum redirecionamento foi realizado."
+                message !== "Ocorreu um erro inesperado."
+                    ? message
+                    : "O pedido não foi confirmado pelo servidor. Nenhum redirecionamento foi realizado."
             );
         }
 
         return result;
     }
 
-    /* =====================================================
-       ENVIO DO FORMULÁRIO E CHECKOUT KIWIFY
-    ===================================================== */
+    /* ENVIO E PAGAMENTO */
 
     form?.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -711,11 +833,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!isFormValid()) {
             showMessage(
-                "Confira os campos destacados, selecione um plano e aceite os termos.",
+                "Confira os campos obrigatórios, selecione um plano e aceite os termos.",
                 "error"
             );
 
-            form.querySelector('[aria-invalid="true"]')?.focus();
+            const firstInvalid = $(
+                '[aria-invalid="true"]',
+                form
+            );
+
+            if (firstInvalid) {
+                firstInvalid.focus({ preventScroll: true });
+                scrollToElement(firstInvalid);
+            } else if (!selectedPlan) {
+                scrollToElement($$(".plan-card")[0]);
+            }
 
             updateFormState();
             return;
@@ -725,7 +857,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!checkoutUrl) {
             showMessage(
-                "Não foi possível identificar o checkout deste plano.",
+                "Não foi possível identificar o pagamento deste plano.",
                 "error"
             );
             return;
@@ -745,13 +877,12 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         setSubmittingState(true);
-
         showMessage("Registrando seu pedido...", "info");
 
         try {
             const result = await submitOrder(orderData);
 
-            console.info("Pedido registrado pela API.", {
+            console.info("Pedido registrado.", {
                 plano: selectedPlan,
                 status: typeof result.status === "string"
                     ? result.status
@@ -759,47 +890,57 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             showMessage(
-                "Pedido registrado! Abrindo o checkout seguro...",
+                "Pedido registrado! Abrindo o pagamento seguro...",
                 "success"
             );
 
-            /*
-             * O pagamento é confirmado separadamente pela Kiwify.
-             * Só redireciona depois que a API confirmar o registro.
-             */
             window.location.assign(checkoutUrl);
 
         } catch (error) {
-            console.error("Erro no envio do pedido:", error);
+            console.error("Erro ao registrar pedido:", error);
 
-            showMessage(
-                getReadableError(error) === "Ocorreu um erro inesperado."
-                    ? "Não foi possível registrar seu pedido. Tente novamente."
-                    : getReadableError(error),
-                "error"
-            );
-
+            showMessage(getReadableError(error), "error");
             setSubmittingState(false);
         }
     });
 
-    /* =====================================================
-       INICIALIZAÇÃO
-    ===================================================== */
+    /* REUNIÃO ONLINE
+       Não intercepta nem atrasa o clique dos links externos.
+       Garante abertura segura para links configurados em nova aba. */
+
+    $$("a[href]").forEach((link) => {
+        const href = link.getAttribute("href") || "";
+        const label = (link.innerText || link.getAttribute("aria-label") || "")
+            .trim()
+            .toLowerCase();
+
+        const isMeeting =
+            /reuni[aã]o|mentoria|agendamento/.test(label) ||
+            /forms\.office\.com|forms\.microsoft\.com/.test(href);
+
+        if (!isMeeting || !/^https?:\/\//i.test(href)) return;
+
+        if (link.target === "_blank") {
+            link.rel = "noopener noreferrer";
+        }
+
+        link.style.touchAction = "manipulation";
+    });
+
+    /* INICIALIZAÇÃO */
 
     updateDescriptionCounter();
     updateFormState();
 
     planCards.forEach((card) => {
-        const planName = card.dataset.plan;
+        const name = card.dataset.plan;
 
-        if (
-            planName &&
-            !Object.prototype.hasOwnProperty.call(PLAN_PRICES, planName)
-        ) {
-            console.warn(`Plano sem preço configurado: ${planName}`);
+        if (name && !Object.hasOwn(PLAN_PRICES, name)) {
+            console.warn(`Plano sem preço configurado: ${name}`);
         }
     });
 
-    console.info("S7 Systems — JavaScript carregado com sucesso.");
+    console.info(
+        "S7 Systems — JavaScript responsivo carregado."
+    );
 });

@@ -3977,3 +3977,858 @@ h2 {
         padding: 12px 14px;
     }
 }
+
+
+/* =========================================================
+   S7 SYSTEMS — CORREÇÃO RESPONSIVA COMPLETA
+   Mobile • Reunião • Planos • Formulário • Botão flutuante
+========================================================= */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    max-width: 100%;
+    scroll-padding-top: 82px;
+}
+
+body {
+    max-width: 100%;
+    margin: 0;
+    overflow-x: clip;
+}
+
+img,
+video {
+    max-width: 100%;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+    -webkit-tap-highlight-color: transparent;
+}
+
+a,
+button {
+    touch-action: manipulation;
+}
+
+/* =========================================================
+   REUNIÃO ONLINE — AJUSTE PARA TODAS AS TELAS
+========================================================= */
+
+.special-call {
+    position: relative;
+    z-index: 5;
+    overflow: visible;
+}
+
+.special-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    min-width: 0;
+}
+
+.special-content {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.special-content h2 {
+    overflow-wrap: anywhere;
+}
+
+.special-content p {
+    line-height: 1.7;
+}
+
+.special-action {
+    position: relative;
+    z-index: 10;
+    flex: 0 0 auto;
+}
+
+.special-action .silver-btn {
+    position: relative;
+    z-index: 11;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 50px;
+    padding: 14px 24px;
+    text-align: center;
+    text-decoration: none;
+    white-space: normal;
+    cursor: pointer;
+    touch-action: manipulation;
+    pointer-events: auto;
+}
+
+.special-action .silver-btn span {
+    flex-shrink: 0;
+}
+
+/* =========================================================
+   BOTÃO FLUTUANTE — VIDRO TRANSPARENTE
+   Classe real do HTML: .floating-button
+========================================================= */
+
+.floating-button {
+    position: fixed;
+    right: 22px;
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    z-index: 9999;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    width: auto;
+    max-width: calc(100vw - 32px);
+    min-height: 46px;
+    padding: 12px 19px;
+
+    color: #f5f5f5;
+    background: rgba(12, 12, 12, 0.28);
+    border: 1px solid rgba(220, 220, 220, 0.32);
+    border-radius: 999px;
+
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: 0.8px;
+    text-align: center;
+    text-decoration: none;
+
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.16);
+
+    transition:
+        background-color 180ms ease,
+        border-color 180ms ease,
+        box-shadow 180ms ease;
+
+    touch-action: manipulation;
+}
+
+.floating-button:hover,
+.floating-button:focus-visible {
+    color: #ffffff;
+    background: rgba(35, 35, 35, 0.48);
+    border-color: rgba(230, 230, 230, 0.6);
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.2);
+}
+
+.floating-button:focus-visible,
+.special-action .silver-btn:focus-visible {
+    outline: 2px solid #d6d6d6;
+    outline-offset: 4px;
+}
+
+/* =========================================================
+   CELULARES
+========================================================= */
+
+@media (max-width: 600px) {
+
+    html {
+        scroll-behavior: auto;
+        scroll-padding-top: 72px;
+        overflow-x: clip;
+    }
+
+    body {
+        font-size: 14px;
+        overflow-x: clip;
+    }
+
+    .container,
+    .section-container,
+    .hero-container,
+    .hero-grid {
+        width: 100%;
+        max-width: 100%;
+        padding-left: 17px;
+        padding-right: 17px;
+    }
+
+    section {
+        max-width: 100%;
+        scroll-margin-top: 72px;
+    }
+
+    /* Cabeçalho compacto */
+    .header {
+        width: 100%;
+    }
+
+    .nav-wrap {
+        min-height: 62px;
+        gap: 12px;
+    }
+
+    .brand img {
+        display: block;
+        width: auto;
+        max-width: 145px;
+        height: auto;
+        max-height: 48px;
+        object-fit: contain;
+    }
+
+    /* Tipografia */
+    h1 {
+        font-size: clamp(29px, 8.2vw, 39px);
+        line-height: 1.12;
+        letter-spacing: -0.8px;
+        overflow-wrap: anywhere;
+    }
+
+    h2 {
+        font-size: clamp(23px, 6.2vw, 30px);
+        line-height: 1.2;
+        letter-spacing: -0.4px;
+        overflow-wrap: anywhere;
+    }
+
+    h3 {
+        font-size: 17px;
+        line-height: 1.35;
+    }
+
+    p {
+        font-size: 13px;
+        line-height: 1.65;
+    }
+
+    .eyebrow {
+        font-size: 10px;
+        letter-spacing: 1.5px;
+    }
+
+    /* Reunião: menos espaço e botão mais fácil de apertar */
+    .special-call {
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+
+    .special-card {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 17px;
+        width: 100%;
+        padding: 21px 17px;
+        border-radius: 15px;
+    }
+
+    .special-content {
+        width: 100%;
+    }
+
+    .special-content .mini-label {
+        display: block;
+        margin-bottom: 12px;
+        font-size: 10px;
+        line-height: 1.6;
+    }
+
+    .special-content h2 {
+        margin-top: 0;
+        margin-bottom: 12px;
+        font-size: clamp(21px, 6vw, 27px);
+        line-height: 1.25;
+    }
+
+    .special-content h2 span {
+        display: block;
+        margin-top: 5px;
+        font-size: 0.75em;
+        line-height: 1.45;
+    }
+
+    .special-content p {
+        margin-top: 0;
+        margin-bottom: 0;
+        font-size: 13px;
+        line-height: 1.65;
+    }
+
+    .special-action {
+        width: 100%;
+        margin: 0;
+    }
+
+    .special-action .silver-btn {
+        display: flex;
+        width: 100%;
+        min-width: 0;
+        min-height: 54px;
+        padding: 15px 18px;
+        gap: 12px;
+        border-radius: 11px;
+        font-size: 14px;
+        line-height: 1.4;
+        white-space: normal;
+    }
+
+    /* Evita que a animação esconda a reunião no celular */
+    .special-call .reveal {
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: none !important;
+        animation: none !important;
+        transition: none !important;
+    }
+
+    /* Hero principal */
+    .hero {
+        min-height: auto;
+        padding-top: 39px;
+        padding-bottom: 36px;
+    }
+
+    .hero-grid,
+    .hero-container {
+        display: flex;
+        flex-direction: column;
+        gap: 27px;
+    }
+
+    .hero-content {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .hero-content h1 {
+        margin-top: 13px;
+        margin-bottom: 17px;
+    }
+
+    .hero-lead {
+        margin-bottom: 12px;
+        font-size: 14px;
+    }
+
+    .hero-text {
+        font-size: 12px;
+    }
+
+    .hero-buttons {
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    .hero-buttons a,
+    .primary-btn,
+    .final-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        min-height: 49px;
+        padding: 13px 16px;
+        font-size: 12px;
+        line-height: 1.4;
+        text-align: center;
+    }
+
+    .trust-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 12px;
+        margin-top: 18px;
+        font-size: 10px;
+    }
+
+    /* Imagem do produto sem ocupar a tela inteira */
+    .hero-visual {
+        width: 100%;
+        max-width: 340px;
+        margin: 0 auto;
+        transform: scale(0.92);
+        transform-origin: top center;
+    }
+
+    .vendas-kiwify-img {
+        display: block;
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+    }
+
+    /* Seções mais compactas */
+    .ebook-service,
+    .plans-section,
+    .process-section,
+    .conversion-section,
+    .quick-plans,
+    .project-section,
+    .about,
+    .final-cta,
+    .faq-section {
+        padding-top: 38px;
+        padding-bottom: 38px;
+    }
+
+    .section-heading {
+        margin-bottom: 23px;
+    }
+
+    .section-heading p {
+        margin-top: 10px;
+    }
+
+    /* Apresentação do serviço */
+    .ebook-service .hero-container {
+        gap: 20px;
+    }
+
+    .hero-card {
+        width: 100%;
+        max-width: 100%;
+        padding: 19px;
+    }
+
+    .hero-card strong {
+        font-size: 30px;
+    }
+
+    /* Planos */
+    .plans-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 15px;
+        width: 100%;
+    }
+
+    .plan-card {
+        width: 100%;
+        min-width: 0;
+        padding: 21px 17px;
+        border-radius: 15px;
+    }
+
+    .plan-card h3 {
+        margin-top: 13px;
+        margin-bottom: 9px;
+    }
+
+    .plan-description {
+        font-size: 12px;
+    }
+
+    .price {
+        margin-top: 17px;
+        margin-bottom: 4px;
+    }
+
+    .price strong {
+        font-size: 34px;
+    }
+
+    .plan-card ul {
+        padding-left: 0;
+        margin-top: 18px;
+        margin-bottom: 20px;
+        list-style: none;
+    }
+
+    .plan-card li {
+        font-size: 12px;
+        line-height: 1.6;
+        margin-bottom: 8px;
+    }
+
+    .plan-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        min-height: 49px;
+        padding: 13px;
+        font-size: 12px;
+        white-space: normal;
+        cursor: pointer;
+        touch-action: manipulation;
+    }
+
+    /* Etapas do processo */
+    .process-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 13px;
+    }
+
+    .process-card {
+        padding: 20px 17px;
+    }
+
+    /* Simulação de vendas */
+    .calculation-card {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        padding: 18px;
+    }
+
+    .calculation-item {
+        width: 100%;
+        min-width: 0;
+        text-align: center;
+    }
+
+    .calculation-item strong {
+        font-size: 25px;
+    }
+
+    .calculation-divider {
+        align-self: center;
+        transform: rotate(90deg);
+    }
+
+    .conversion-explanation {
+        gap: 10px;
+        padding: 15px;
+    }
+
+    .conversion-explanation p,
+    .conversion-note {
+        font-size: 11px;
+    }
+
+    /* Seleção rápida de planos */
+    .quick-plans-list {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 9px;
+    }
+
+    .quick-plan {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        width: 100%;
+        min-height: 49px;
+        padding: 12px 15px;
+        font-size: 12px;
+        touch-action: manipulation;
+    }
+
+    /* Formulário */
+    .project-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 23px;
+    }
+
+    .project-info,
+    .project-form-wrapper,
+    .project-form {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .project-form {
+        padding: 19px 15px;
+        border-radius: 15px;
+    }
+
+    .selected-plan {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 12px;
+    }
+
+    .selected-plan > div:first-child {
+        min-width: 0;
+    }
+
+    .selected-plan strong {
+        overflow-wrap: anywhere;
+    }
+
+    .selected-price {
+        flex-shrink: 0;
+    }
+
+    .field {
+        min-width: 0;
+        margin-bottom: 16px;
+    }
+
+    .field label {
+        display: block;
+        margin-bottom: 7px;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .project-form input:not([type="checkbox"]),
+    .project-form select,
+    .project-form textarea {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        min-height: 47px;
+        padding: 12px 13px;
+        border-radius: 9px;
+        font-size: 16px;
+        line-height: 1.5;
+    }
+
+    .project-form textarea {
+        min-height: 155px;
+        resize: vertical;
+    }
+
+    .label-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    #counter {
+        flex-shrink: 0;
+        font-size: 10px;
+    }
+
+    .character-status,
+    .field-error {
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    .terms {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 11px;
+        line-height: 1.6;
+    }
+
+    .terms input[type="checkbox"] {
+        flex: 0 0 19px;
+        width: 19px;
+        height: 19px;
+        margin-top: 2px;
+    }
+
+    .payment-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        min-height: 53px;
+        padding: 14px 12px;
+        font-size: 12px;
+        line-height: 1.4;
+        white-space: normal;
+        touch-action: manipulation;
+    }
+
+    .payment-disclaimer {
+        font-size: 10px;
+        line-height: 1.6;
+    }
+
+    .form-message {
+        overflow-wrap: anywhere;
+        font-size: 12px;
+    }
+
+    /* Sobre */
+    .about-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .about-photo-column,
+    .about-content {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .about-photo-frame {
+        width: min(100%, 300px);
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .about-photo {
+        display: block;
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+    }
+
+    .about-signature {
+        gap: 12px;
+    }
+
+    .about-signature span {
+        font-size: 10px;
+        line-height: 1.5;
+    }
+
+    /* Chamada final */
+    .final-cta h2 {
+        margin-top: 13px;
+        margin-bottom: 15px;
+    }
+
+    .final-cta p {
+        font-size: 12px;
+    }
+
+    /* Perguntas frequentes */
+    .faq-list details {
+        padding: 15px 13px;
+    }
+
+    .faq-list summary {
+        gap: 12px;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .faq-list details p {
+        font-size: 12px;
+    }
+
+    /* Rodapé */
+    .footer {
+        padding-top: 23px;
+        padding-bottom: 23px;
+    }
+
+    .footer-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .footer-copy p,
+    .footer-copy span {
+        font-size: 10px;
+        line-height: 1.6;
+    }
+
+    /* Botão flutuante transparente */
+    .floating-button {
+        right: 11px;
+        bottom: calc(11px + env(safe-area-inset-bottom));
+        max-width: calc(100vw - 22px);
+        min-height: 45px;
+        padding: 11px 15px;
+        gap: 8px;
+
+        color: #ffffff;
+        background: rgba(12, 12, 12, 0.28);
+        border: 1px solid rgba(230, 230, 230, 0.36);
+        border-radius: 999px;
+
+        font-size: 10px;
+        letter-spacing: 0.7px;
+
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.14);
+    }
+
+    /* Remove efeitos que pesam no toque */
+    .cursor-glow {
+        display: none !important;
+    }
+
+    .hero-visual *,
+    .money-particle {
+        animation-duration: 0s !important;
+    }
+
+    .special-action .silver-btn,
+    .plan-button,
+    .quick-plan,
+    .payment-button,
+    .floating-button {
+        transition: none !important;
+    }
+}
+
+/* =========================================================
+   CELULARES ESTREITOS
+========================================================= */
+
+@media (max-width: 380px) {
+
+    .container,
+    .section-container,
+    .hero-container,
+    .hero-grid {
+        padding-left: 13px;
+        padding-right: 13px;
+    }
+
+    .special-card {
+        padding: 17px 13px;
+    }
+
+    .special-content h2 {
+        font-size: 21px;
+    }
+
+    h1 {
+        font-size: 29px;
+    }
+
+    .plan-card {
+        padding: 18px 13px;
+    }
+
+    .project-form {
+        padding: 16px 12px;
+    }
+
+    .floating-button {
+        right: 8px;
+        bottom: calc(8px + env(safe-area-inset-bottom));
+        padding: 10px 12px;
+        font-size: 9px;
+    }
+}
+
+/* Acessibilidade: respeita a preferência por movimento reduzido */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
